@@ -1,7 +1,7 @@
 {
     "metodo": "umap",
     "n_componentes": 10,
-    "parametros": {},
-    "tiempo_ajuste_seg": 12.4446,
-    "tiempo_transformacion_seg": 0.0012
+    "set": "train",
+    "tiempo_fit_transform_seg": 12.191,
+    "parametros": {}
 }

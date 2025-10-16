@@ -1,7 +1,7 @@
 {
     "metodo": "pca",
     "n_componentes": 10,
-    "parametros": {},
-    "tiempo_ajuste_seg": 0.1291,
-    "tiempo_transformacion_seg": 0.0007
+    "set": "train",
+    "tiempo_fit_transform_seg": 0.0098,
+    "parametros": {}
 }

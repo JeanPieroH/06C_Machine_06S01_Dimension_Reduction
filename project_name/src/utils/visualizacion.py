@@ -256,3 +256,89 @@ def graficar_panel_embeddings(embeddings_dict, y_true, out_path):
     plt.savefig(out_path)
     plt.close()
     print("Panel de embeddings guardado con éxito.")
+
+def graficar_resultados_benchmark(df_resultados, metrica='f1_macro', n_components=50, out_path=None):
+    """
+    Crea un gráfico de barras agrupado para comparar los resultados de los clasificadores.
+
+    Args:
+        df_resultados (pd.DataFrame): DataFrame con los resultados del benchmark.
+        metrica (str): Métrica a graficar (ej. 'f1_macro').
+        n_components (int): Filtrar resultados para este número de componentes.
+        out_path (str, optional): Ruta para guardar la figura.
+    """
+    print(f"Generando gráfico de barras para n_components={n_components}...")
+    df_filtrado = df_resultados[df_resultados['n_components'] == n_components]
+
+    plt.figure(figsize=(14, 8))
+    sns.barplot(data=df_filtrado, x='reducer', y=metrica, hue='classifier', palette='viridis')
+
+    plt.title(f'Comparación de Clasificadores ({metrica}) con n_components={n_components}')
+    plt.xlabel('Método de Reducción')
+    plt.ylabel(f'Puntuación {metrica.replace("_", " ").title()}')
+    plt.xticks(rotation=45, ha='right')
+    plt.legend(title='Clasificador')
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.tight_layout()
+
+    if out_path:
+        os.makedirs(os.path.dirname(out_path), exist_ok=True)
+        plt.savefig(out_path)
+        print(f"Gráfico de resultados guardado en '{out_path}'.")
+
+    plt.close()
+
+def graficar_heatmap_resultados(df_resultados, metrica='f1_macro', n_components=50, out_path=None):
+    """
+    Crea un mapa de calor para visualizar el rendimiento de las combinaciones.
+
+    Args:
+        df_resultados (pd.DataFrame): DataFrame con los resultados.
+        metrica (str): Métrica a mostrar en el heatmap.
+        n_components (int): Filtrar por este número de componentes.
+        out_path (str, optional): Ruta para guardar la figura.
+    """
+    print(f"Generando heatmap de resultados para n_components={n_components}...")
+    df_filtrado = df_resultados[df_resultados['n_components'] == n_components]
+
+    pivot_table = df_filtrado.pivot_table(index='reducer', columns='classifier', values=metrica)
+
+    plt.figure(figsize=(10, 7))
+    sns.heatmap(pivot_table, annot=True, fmt=".4f", cmap="viridis", linewidths=.5)
+
+    plt.title(f'Heatmap de Rendimiento ({metrica}) con n_components={n_components}')
+    plt.xlabel('Clasificador')
+    plt.ylabel('Método de Reducción')
+    plt.tight_layout()
+
+    if out_path:
+        os.makedirs(os.path.dirname(out_path), exist_ok=True)
+        plt.savefig(out_path)
+        print(f"Heatmap guardado en '{out_path}'.")
+
+    plt.close()
+
+def graficar_matriz_confusion(matriz, etiquetas_clases, titulo, out_path):
+    """
+    Crea y guarda una visualización de una matriz de confusión.
+
+    Args:
+        matriz (np.ndarray): La matriz de confusión a graficar.
+        etiquetas_clases (list): Nombres de las clases para los ejes.
+        titulo (str): Título del gráfico.
+        out_path (str): Ruta para guardar la figura.
+    """
+    print(f"Graficando matriz de confusión en '{out_path}'...")
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(matriz, annot=True, fmt='d', cmap='Blues',
+                xticklabels=etiquetas_clases, yticklabels=etiquetas_clases)
+
+    plt.title(titulo)
+    plt.xlabel('Etiqueta Predicha')
+    plt.ylabel('Etiqueta Verdadera')
+    plt.tight_layout()
+
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    plt.savefig(out_path)
+    plt.close()
+    print("Matriz de confusión guardada.")
