@@ -1,0 +1,7 @@
+{
+    "metodo": "spectral",
+    "n_componentes": 10,
+    "parametros": {},
+    "tiempo_ajuste_seg": 0.0534,
+    "tiempo_ajuste_transformacion_seg": 0.0239
+}

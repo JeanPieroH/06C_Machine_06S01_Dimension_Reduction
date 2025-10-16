@@ -1,0 +1,7 @@
+{
+    "metodo": "nmf",
+    "n_componentes": 50,
+    "parametros": {},
+    "tiempo_ajuste_seg": 0.5844,
+    "tiempo_transformacion_seg": 0.0291
+}

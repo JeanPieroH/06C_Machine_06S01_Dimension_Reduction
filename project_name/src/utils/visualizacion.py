@@ -212,3 +212,47 @@ def detectar_outliers_por_intensidad(X, low_threshold=0.1, high_threshold=0.9):
         print("No se encontraron outliers por intensidad.")
 
     return outliers
+
+def graficar_panel_embeddings(embeddings_dict, y_true, out_path):
+    """
+    Crea un panel con gráficos de dispersión para diferentes embeddings 2D.
+
+    Args:
+        embeddings_dict (dict): Diccionario donde las claves son los nombres de los
+                                métodos y los valores son los arrays de embeddings (n_samples, 2).
+        y_true (np.ndarray): Etiquetas verdaderas para colorear los puntos.
+        out_path (str): Ruta para guardar la figura del panel.
+    """
+    print(f"Generando panel de visualización de embeddings en '{out_path}'...")
+
+    num_plots = len(embeddings_dict)
+    # Ajustar el número de columnas para que no sea demasiado ancho
+    cols = min(num_plots, 3)
+    rows = (num_plots + cols - 1) // cols
+
+    fig, axes = plt.subplots(rows, cols, figsize=(cols * 5, rows * 5), squeeze=False)
+    axes = axes.flatten()
+
+    class_labels = np.unique(y_true)
+
+    for i, (nombre_metodo, embedding) in enumerate(embeddings_dict.items()):
+        ax = axes[i]
+        scatter = ax.scatter(embedding[:, 0], embedding[:, 1], c=y_true, cmap=plt.get_cmap('viridis', len(class_labels)), s=10, alpha=0.7)
+        ax.set_title(f"Visualización 2D con {nombre_metodo.upper()}")
+        ax.set_xlabel("Componente 1")
+        ax.set_ylabel("Componente 2")
+        ax.grid(True, linestyle='--', alpha=0.5)
+
+        # Crear una leyenda discreta
+        legend_handles = scatter.legend_elements(num=len(class_labels))
+        ax.legend(handles=legend_handles[0], labels=list(class_labels), title="Clases")
+
+    # Ocultar ejes no utilizados
+    for j in range(i + 1, len(axes)):
+        axes[j].axis('off')
+
+    plt.tight_layout()
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    plt.savefig(out_path)
+    plt.close()
+    print("Panel de embeddings guardado con éxito.")
