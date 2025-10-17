@@ -1,0 +1,3 @@
+Conjunto,Nº Muestras,Nº Características,Forma Original,Forma Aplanada,Tipo de Dato (X),Rango de Valores (X)
+Entrenamiento,60000,784,"(60000, 28, 28)","(60000, 784)",float32,0.0-1.0
+Prueba,10000,784,"(10000, 28, 28)","(10000, 784)",float32,0.0-1.0

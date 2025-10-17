@@ -10,7 +10,7 @@ seaborn>=0.12
 
 # Reducción de dimensionalidad y neighbors
 umap-learn>=0.5
-pynndescent>=0.6
+pynndescent>=0.5
 
 # Alternativas / visualización no lineal
 scikit-image>=0.20
@@ -18,6 +18,7 @@ tqdm>=4.65
 
 # Descarga / utilidades
 gdown>=4.6
+tensorflow>=2.12,<3 # Para carga de datasets estándar
 
 # Tests y calidad
 pytest>=7.0

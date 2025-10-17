@@ -181,6 +181,10 @@ Desktop.ini
 $RECYCLE.BIN/
 
 # Machine Learning específico
+
+# Datos del proyecto (ignorar completamente los directorios de datos)
+data/
+
 # Modelos entrenados
 *.pkl
 *.joblib
