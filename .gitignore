@@ -192,8 +192,8 @@ $RECYCLE.BIN/
 
 # Datos grandes (mantener solo muestras pequeñas en git)
 # Descomenta si tienes datasets muy grandes
-# data/raw/*.csv
-# data/processed/*.csv
+data/raw/
+data/processed/
 
 # Logs de experimentos
 logs/

@@ -1,7 +1,0 @@
-{
-    "metodo": "isomap",
-    "n_componentes": 50,
-    "set": "train",
-    "tiempo_fit_transform_seg": 0.0139,
-    "parametros": {}
-}

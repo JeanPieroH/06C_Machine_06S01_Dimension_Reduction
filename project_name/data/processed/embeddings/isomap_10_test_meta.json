@@ -1,7 +1,0 @@
-{
-    "metodo": "isomap",
-    "n_componentes": 10,
-    "parametros": {},
-    "tiempo_ajuste_seg": 0.2221,
-    "tiempo_transformacion_seg": 0.0693
-}
