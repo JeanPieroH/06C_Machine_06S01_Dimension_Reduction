@@ -1,0 +1,9 @@
+{
+    "normalizador": "minmax",
+    "metodo_reduccion": "pca",
+    "n_componentes": 10,
+    "tiempo_fit_s": 1.0656,
+    "tiempo_transform_s": 0.0128,
+    "transform_soportado": true,
+    "memoria_estimada_mb": 4.57763671875
+}

@@ -1,0 +1,3 @@
+normalizador,metodo_reduccion,n_componentes,tiempo_fit_s,tiempo_transform_s,transform_soportado,memoria_estimada_mb
+por_imagen,pca,10,1.4453,0.0197,True,4.57763671875
+minmax,pca,10,0.6735,0.0189,True,4.57763671875

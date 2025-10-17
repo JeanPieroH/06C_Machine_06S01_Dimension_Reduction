@@ -253,3 +253,6 @@ proyecto_env/
 
 # Directorio de datos del proyecto
 data/
+
+# Directorio de salidas (figuras, tablas, modelos)
+outputs/

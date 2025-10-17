@@ -1,0 +1,9 @@
+{
+    "normalizador": "por_imagen",
+    "metodo_reduccion": "pca",
+    "n_componentes": 187,
+    "tiempo_fit_s": 0.8369,
+    "tiempo_transform_s": 0.0438,
+    "transform_soportado": true,
+    "memoria_estimada_mb": 85.601806640625
+}

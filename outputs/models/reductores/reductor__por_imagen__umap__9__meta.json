@@ -1,0 +1,9 @@
+{
+    "normalizador": "por_imagen",
+    "metodo_reduccion": "umap",
+    "n_componentes": 9,
+    "tiempo_fit_s": 186.1093,
+    "tiempo_transform_s": 36.7677,
+    "transform_soportado": true,
+    "memoria_estimada_mb": 2.0599365234375
+}
