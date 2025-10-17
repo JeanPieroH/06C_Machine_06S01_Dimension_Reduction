@@ -1,93 +1,215 @@
-# Proyecto 2: Reducción de la dimensionalidad 
- 
-import pandas as pd 
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-import gdown
+# -*- coding: utf-8 -*-
+"""
+Módulo para la carga y procesamiento inicial del dataset Fashion MNIST.
+
+Funciones:
+- ejecutar_pipeline_carga: Orquesta la descarga, guardado y procesamiento básico.
+- guardar_conjunto_procesado: Guarda conjuntos de datos procesados en disco.
+- cargar_conjunto_procesado: Carga un conjunto de datos previamente procesado.
+"""
+import os
+import json
 import numpy as np
-import struct
+import tensorflow as tf
+from datetime import datetime
+import pkg_resources
 
+# Semilla para reproducibilidad
+SEMILLA = 42
+np.random.seed(SEMILLA)
+tf.random.set_seed(SEMILLA)
 
+def _obtener_versiones_paquetes():
+    """Obtiene las versiones de los paquetes clave."""
+    paquetes = ['numpy', 'tensorflow', 'scikit-learn']
+    versiones = {}
+    for paquete in paquetes:
+        try:
+            versiones[paquete] = pkg_resources.get_distribution(paquete).version
+        except pkg_resources.DistributionNotFound:
+            versiones[paquete] = "No encontrado"
+    return versiones
 
+def guardar_conjunto_procesado(x_train, x_test, y_train, y_test, dir_salida, nombre_normalizador, meta=None):
+    """
+    Guarda los arrays de datos procesados en un subdirectorio específico.
 
-def download_data(file_id, name_file):
-    url = f"https://drive.google.com/uc?id={file_id}"
-    gdown.download(url, name_file, quiet=False)
-    return name_file 
+    Args:
+        x_train (np.ndarray): Datos de entrenamiento.
+        x_test (np.ndarray): Datos de prueba.
+        y_train (np.ndarray): Etiquetas de entrenamiento.
+        y_test (np.ndarray): Etiquetas de prueba.
+        dir_salida (str): Directorio base para los datos procesados.
+        nombre_normalizador (str): Nombre del normalizador usado para crear el subdirectorio.
+        meta (dict, optional): Metadatos adicionales para guardar. Defaults to None.
 
-def read_labels(file_path):
-    class_names = {
-        0: "T-shirt/top",
-        1: "Trouser",
-        2: "Pullover",
-        3: "Dress",
-        4: "Coat",
-        5: "Sandal",
-        6: "Shirt",
-        7: "Sneaker",
-        8: "Bag",
-        9: "Ankle boot"
+    Returns:
+        str: Ruta al directorio donde se guardaron los datos.
+    """
+    ruta_version = os.path.join(dir_salida, 'normalizations', nombre_normalizador)
+    os.makedirs(ruta_version, exist_ok=True)
+
+    np.save(os.path.join(ruta_version, 'X_train.npy'), x_train)
+    np.save(os.path.join(ruta_version, 'X_test.npy'), x_test)
+    np.save(os.path.join(ruta_version, 'y_train.npy'), y_train)
+    np.save(os.path.join(ruta_version, 'y_test.npy'), y_test)
+
+    if meta:
+        with open(os.path.join(ruta_version, 'metadata.json'), 'w') as f:
+            json.dump(meta, f, indent=4)
+
+    print(f"Datos guardados en: {ruta_version}")
+    return ruta_version
+
+def ejecutar_pipeline_carga(descargar=True, dir_crudos="data/raw/", dir_procesados="data/processed/", sobrescribir=False):
+    """
+    Ejecuta el pipeline completo de carga de datos para Fashion MNIST.
+
+    Descarga los datos, los guarda en formato raw, crea metadatos y
+    genera una versión procesada inicial (normalización MinMax [0,1]).
+
+    Args:
+        descargar (bool): Si es True, descarga los datos.
+        dir_crudos (str): Directorio para guardar los datos crudos.
+        dir_procesados (str): Directorio para guardar los datos procesados.
+        sobrescribir (bool): Si es True, sobrescribe los archivos existentes.
+
+    Returns:
+        tuple: Tupla con (rutas_crudo, ruta_procesado_baseline, metadatos).
+    """
+    os.makedirs(dir_crudos, exist_ok=True)
+    os.makedirs(dir_procesados, exist_ok=True)
+
+    rutas_crudos = {
+        "X_train": os.path.join(dir_crudos, 'X_train_raw.npy'),
+        "y_train": os.path.join(dir_crudos, 'y_train_raw.npy'),
+        "X_test": os.path.join(dir_crudos, 'X_test_raw.npy'),
+        "y_test": os.path.join(dir_crudos, 'y_test_raw.npy'),
+        "metadata": os.path.join(dir_crudos, 'metadata.json')
     }
 
-    with open(file_path, 'rb') as f:
-        magic, num_labels = struct.unpack(">II", f.read(8))
-        labels = np.frombuffer(f.read(), dtype=np.uint8)
-    df = pd.DataFrame(labels, columns=["label"])
-    df["class_name"] = df["label"].map(class_names)
-    return df
+    if not sobrescribir and all(os.path.exists(p) for p in rutas_crudos.values()):
+        print("Los archivos crudos ya existen. Saltando descarga y guardado.")
+        with open(rutas_crudos["metadata"], 'r') as f:
+            metadatos = json.load(f)
 
+        ruta_baseline = os.path.join(dir_procesados, 'normalizations', 'minmax')
+        if os.path.exists(ruta_baseline):
+             print(f"La versión procesada 'minmax' ya existe en {ruta_baseline}")
+        else:
+            print("Generando versión procesada 'minmax' desde archivos raw...")
+            x_train_crudo = np.load(rutas_crudos["X_train"])
+            x_test_crudo = np.load(rutas_crudos["X_test"])
+            y_train_crudo = np.load(rutas_crudos["y_train"])
+            y_test_crudo = np.load(rutas_crudos["y_test"])
 
-def extrar_feature_images(file_path):
+            x_train_norm = x_train_crudo.astype('float32') / 255.0
+            x_test_norm = x_test_crudo.astype('float32') / 255.0
 
-    with open(file_path, 'rb') as f:
-        magic, num_images, rows, cols = struct.unpack(">IIII", f.read(16))
-        print("Número de imágenes:", num_images)
-        print("Dimensiones de cada imagen:", rows, "x", cols)
-        image_data = np.frombuffer(f.read(), dtype=np.uint8)
-        images = image_data.reshape(num_images, rows, cols)
-        X = images.reshape(num_images, rows * cols)
-        print("Forma de la matriz final:", X.shape) 
-    return X 
+            ruta_baseline = guardar_conjunto_procesado(
+                x_train_norm, x_test_norm, y_train_crudo, y_test_crudo,
+                dir_procesados, "minmax", meta=metadatos
+            )
 
-def Show_Image(X,nro_imagen):
-    if nro_imagen < 0 or nro_imagen >= X.shape[0]:
-        raise IndexError(f"El índice {nro_imagen} está fuera de rango. Debe estar entre 0 y {X.shape[0]-1}")
+        return rutas_crudos, ruta_baseline, metadatos
 
-    img = X[nro_imagen].reshape(28, 28)
-    plt.imshow(img, cmap='gray')
-    plt.title(f"Imagen #{nro_imagen}")
-    plt.axis('off')
-    plt.show()
+    if not descargar:
+        print("La descarga está desactivada y los archivos no existen. No se puede continuar.")
+        return None, None, None
 
+    print("Descargando el dataset Fashion MNIST...")
+    (x_train_crudo, y_train_crudo), (x_test_crudo, y_test_crudo) = tf.keras.datasets.fashion_mnist.load_data()
+    print("Descarga completa.")
 
+    np.save(rutas_crudos["X_train"], x_train_crudo)
+    np.save(rutas_crudos["y_train"], y_train_crudo)
+    np.save(rutas_crudos["X_test"], x_test_crudo)
+    np.save(rutas_crudos["y_test"], y_test_crudo)
+    print(f"Datos crudos guardados en: {dir_crudos}")
 
-# Descargando la data solo la primera vez
-file_train_X = download_data("1enziBIpqiv_t95KQcifsclNH2BdR8lAd","train_X")
-file_test_X  = download_data("1Jeax6tnQ6Nmr2PTNXdQqzKnN0YqtrLe4","test_X")
-file_train_Y = download_data("1MZtn2iA5cgiYT1i3O0ECuR01oD0kGHh7","train_Y")
-file_test_Y  = download_data("1K5pxwk2s3RDYsYuwv8RftJTXZ-RGR7K4","test_Y")
+    metadatos = {
+        "nombre_dataset": "Fashion MNIST",
+        "fecha_descarga_utc": datetime.utcnow().isoformat(),
+        "semilla_reproducibilidad": SEMILLA,
+        "fuente": "TensorFlow/Keras Datasets",
+        "versiones_paquetes": _obtener_versiones_paquetes(),
+        "archivos_crudos": {
+            "X_train": {"forma": x_train_crudo.shape, "tipo_dato": str(x_train_crudo.dtype), "tamano_bytes": x_train_crudo.nbytes},
+            "y_train": {"forma": y_train_crudo.shape, "tipo_dato": str(y_train_crudo.dtype), "tamano_bytes": y_train_crudo.nbytes},
+            "X_test": {"forma": x_test_crudo.shape, "tipo_dato": str(x_test_crudo.dtype), "tamano_bytes": x_test_crudo.nbytes},
+            "y_test": {"forma": y_test_crudo.shape, "tipo_dato": str(y_test_crudo.dtype), "tamano_bytes": y_test_crudo.nbytes},
+        }
+    }
+    with open(rutas_crudos["metadata"], 'w') as f:
+        json.dump(metadatos, f, indent=4)
+    print(f"Metadatos guardados en: {rutas_crudos['metadata']}")
 
+    print("Generando versión procesada baseline (minmax)...")
+    x_train_norm = x_train_crudo.astype('float32') / 255.0
+    x_test_norm = x_test_crudo.astype('float32') / 255.0
 
-train_X = extrar_feature_images(file_train_X )
-test_X = extrar_feature_images(file_test_X )
-train_Y = read_labels(file_train_Y)
-test_Y = read_labels(file_test_Y)
+    ruta_baseline = guardar_conjunto_procesado(
+        x_train_norm, x_test_norm, y_train_crudo, y_test_crudo,
+        dir_procesados, "minmax", meta=metadatos
+    )
 
+    return rutas_crudos, ruta_baseline, metadatos
 
-print("Data train : ",train_X.shape)
-print("Label train : ",train_Y.shape)
-print("Data test : ", test_X.shape)
-print("Label test : ", test_Y.shape)
+def cargar_conjunto_procesado(dir_procesados="data/processed/", nombre_normalizador="minmax"):
+    """
+    Carga un conjunto de datos procesado desde el disco.
 
+    Args:
+        dir_procesados (str): Directorio base donde se encuentran los datos procesados.
+        nombre_normalizador (str): Nombre de la versión de normalización a cargar.
 
+    Returns:
+        tuple: Tupla con (X_train, X_test, y_train, y_test, metadata).
+               Retorna (None, None, None, None, None) si no se encuentra.
+    """
+    ruta_datos = os.path.join(dir_procesados, 'normalizations', nombre_normalizador)
+    if not os.path.exists(ruta_datos):
+        print(f"Error: El directorio de datos procesados '{ruta_datos}' no existe.")
+        return None, None, None, None, None
 
-image_number = 45
-Show_Image(X,image_number)
+    try:
+        x_train = np.load(os.path.join(ruta_datos, 'X_train.npy'))
+        x_test = np.load(os.path.join(ruta_datos, 'X_test.npy'))
+        y_train = np.load(os.path.join(ruta_datos, 'y_train.npy'))
+        y_test = np.load(os.path.join(ruta_datos, 'y_test.npy'))
 
+        ruta_metadata = os.path.join(ruta_datos, 'metadata.json')
+        if os.path.exists(ruta_metadata):
+            with open(ruta_metadata, 'r') as f:
+                metadatos = json.load(f)
+        else:
+            metadatos = None
 
+        print(f"Datos cargados exitosamente desde '{ruta_datos}'.")
+        return x_train, x_test, y_train, y_test, metadatos
 
+    except FileNotFoundError as e:
+        print(f"Error al cargar los archivos desde '{ruta_datos}': {e}")
+        return None, None, None, None, None
 
+if __name__ == '__main__':
+    """
+    Punto de entrada para ejecutar el script directamente.
+    Esto descargará los datos y creará la estructura de archivos inicial.
+    """
+    print("Ejecutando el pipeline de carga de datos como un script independiente...")
+    rutas_crudos, ruta_baseline, metadatos = ejecutar_pipeline_carga(sobrescribir=True)
 
+    if rutas_crudos:
+        print("\n--- Resumen de la Ejecución ---")
+        print(f"Rutas de datos crudos generadas:")
+        for clave, ruta in rutas_crudos.items():
+            print(f"  - {clave}: {ruta}")
 
+        print(f"\nRuta de la versión procesada (baseline): {ruta_baseline}")
 
-
+        print("\nMetadatos generados:")
+        print(json.dumps(metadatos, indent=2, ensure_ascii=False))
+        print("\nPipeline de carga completado exitosamente.")
+    else:
+        print("\nEl pipeline de carga no se pudo completar.")

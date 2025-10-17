@@ -250,3 +250,6 @@ __pycache__/
 # Virtual environments específicos
 ml_env/
 proyecto_env/
+
+# Directorio de datos del proyecto
+data/
