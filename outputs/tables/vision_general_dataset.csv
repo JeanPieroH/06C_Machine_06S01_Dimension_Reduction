@@ -1,2 +1,0 @@
-dataset,X_train_shape,X_train_dtype,X_train_min,X_train_max,X_train_mean,X_train_std,X_test_shape,X_test_dtype,X_test_min,X_test_max,X_test_mean,X_test_std
-fashion_mnist,"(60000, 784)",float32,0.0,1.0,0.28604018688201904,0.353023886680603,"(10000, 784)",float32,0.0,1.0,0.2868494391441345,0.35244420170783997
