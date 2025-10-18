@@ -1,28 +1,5 @@
-# Core - manipulación y ML
-numpy>=1.24,<2
-pandas>=1.5,<2
-scikit-learn>=1.2,<2
-joblib>=1.2
-
-# Visualización
-matplotlib>=3.5
-seaborn>=0.12
-
-# Reducción de dimensionalidad y neighbors
-umap-learn>=0.5
-pynndescent>=0.6
-
-# Alternativas / visualización no lineal
-scikit-image>=0.20
-tqdm>=4.65
-
-# Descarga / utilidades
-gdown>=4.6
-
-# Tests y calidad
-pytest>=7.0
-
-# Notebook / kernel / export
-jupyterlab>=4.0
-ipykernel>=6.0
-nbconvert>=7.0
+numpy==2.2.6
+pandas==2.3.3
+matplotlib==3.10.7
+seaborn==0.13.2
+scikit-learn==1.7.2

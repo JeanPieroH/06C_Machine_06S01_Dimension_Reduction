@@ -1,0 +1,14 @@
+{
+  "metodo": "pca",
+  "n_componentes": 4,
+  "tiempo_ajuste": 0.338553,
+  "params": {
+    "n_components": 4,
+    "random_state": 42
+  },
+  "forma_entrada": [
+    60000,
+    784
+  ],
+  "marca_tiempo": "2025-10-17T20:52:23.622817Z"
+}

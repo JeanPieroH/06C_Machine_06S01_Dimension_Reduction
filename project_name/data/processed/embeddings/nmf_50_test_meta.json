@@ -1,7 +1,0 @@
-{
-    "metodo": "nmf",
-    "n_componentes": 50,
-    "set": "test",
-    "tiempo_transform_seg": 0.0476,
-    "parametros": {}
-}

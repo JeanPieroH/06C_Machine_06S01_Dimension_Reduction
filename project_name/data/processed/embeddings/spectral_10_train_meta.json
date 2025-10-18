@@ -1,7 +1,0 @@
-{
-    "metodo": "spectral",
-    "n_componentes": 10,
-    "set": "train",
-    "tiempo_fit_transform_seg": 0.0183,
-    "parametros": {}
-}

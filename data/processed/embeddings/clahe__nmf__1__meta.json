@@ -1,0 +1,14 @@
+{
+  "metodo": "nmf",
+  "n_componentes": 1,
+  "tiempo_ajuste": 7.095657,
+  "params": {
+    "n_components": 1,
+    "random_state": 42
+  },
+  "forma_entrada": [
+    60000,
+    784
+  ],
+  "marca_tiempo": "2025-10-17T20:52:36.948771Z"
+}
